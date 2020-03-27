@@ -1,0 +1,47 @@
+body * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+    user-select: none;
+	font-family: 'Inter', monospace;
+}
+
+* {
+	outline: none !important;
+	text-decoration: none;
+	box-sizing: border-box !important;
+	color: inherit;
+}
+
+a {
+	text-decoration: underline;
+}
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100%;
+	width: 100%;
+	overflow-x: hidden;
+}
+
+#screen {
+	position: absolute;
+	top: 100px;
+	bottom: 100px;
+	left: 20px;
+	right: 20px;
+	text-align: center;
+	overflow-y: hidden;
+}
+
+#screen p {
+	margin: 0;
+	padding: 0;
+	white-space: pre-wrap;
+	display: block;
+}
