@@ -164,16 +164,25 @@ var IO = {
 	}, options: {
 		id: "input",
 		options: [],
-		set: function (f) {
+		back: null,
+		set: function (f, b) {
 			// IO.input(IO.options.id);
 			IO.options.options = f;
+			IO.options.back = b;
 			document.addEventListener('keyup', IO.options.type);
 		}, type: function (e) {
 			var key = e.keyCode ? e.keyCode : e.which;
-			if (key >= 48 && key <= 57)
+			if (key >= 49 && key <= 57)
 				key = key - 48;
-			else if (key >= 96 && key <= 105)
+			else if (key >= 97 && key <= 105)
 				key = key - 96;
+			else if (key == 48 || key == 96) {
+				if (IO.options.back) {
+					document.removeEventListener('keyup', IO.options.type);
+					// IO.get(IO.options.id).removeAttribute("id");
+					return IO.options.back(key);
+				}
+			}
 			if (IO.options.options[key - 1]) {
 				document.removeEventListener('keyup', IO.options.type);
 				// IO.get(IO.options.id).removeAttribute("id");

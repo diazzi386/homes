@@ -3,7 +3,7 @@ window.onload = function () {
 	/*
 	Memory.load({
 		"name": "LUCA",
-		"description": "RUTHLESS",
+		"description": "ANXIOUS",
 		"country": "ITALY",
 		"currency": "EUR",
 		"salary": 50000,
@@ -20,7 +20,8 @@ window.onload = function () {
 			volatility: 0,
 			frequency: 0,
 			slope: 0.5,
-			index: 1.0
+			index: 1.0,
+			variation: 0.0
 		}, "accounting": {
 			income: 0,
 			expenses: 0,
@@ -28,11 +29,10 @@ window.onload = function () {
 			sold: 0
 		}
 	});
-	*/
 
-	// Game.office.main();
+	Game.office.intro();
+	*/
 	Game.start.start();
-	// Game.settings.price();
 };
 
 var Game = {
@@ -120,7 +120,7 @@ var Game = {
 			else
 				IO.write("That's cheap!");
 			IO.write("");
-			Memory.write("salary", price * 0.4);
+			Memory.write("salary", price * 0.2);
 			IO.write("So people make around " + Memory.read("salary") + " " + Memory.read("currency") + " a year?");
 			IO.confirm.set(Game.settings.askDifficulty, Game.settings.askSalary, Game.what);
 		}, askSalary: function () {
@@ -142,8 +142,12 @@ var Game = {
 			]);
 		}, preparing: function (d) {
 			IO.clear();
-			IO.write("Excellent!", "sz-48 bolder");
-			IO.write("I am now preparing your office...");
+			IO.write("Hired!", "sz-48 bolder fg-green");
+			IO.write("You will start to work for");
+			IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
+			IO.write("next week.");
+			IO.write("We are now preparing your office.");
+			IO.write("See you soon!");
 			Memory.write("properties", []);
 			Memory.write("renters", []);
 			Memory.write("account", 200000);
@@ -152,7 +156,8 @@ var Game = {
 				volatility: 0,
 				frequency: 0,
 				slope: 0.5,
-				index: 1.0
+				index: 1.0,
+				variation: 0.0
 			});
 			Memory.write("time", {
 				month: new Date().getMonth(),
@@ -172,16 +177,16 @@ var Game = {
 			IO.write("");
 			IO.write("Done!");
 			IO.write("Press any key to continue", "advice");
-			IO.pause.set(Game.office.main);
+			IO.pause.set(Game.office.intro);
 		}
 	}, office: {
-		main: function () {
+		intro: function () {
 			var m = "January February March April May June July August September October November December";
 			var t = Memory.read("time");
 			m = m.split(" ")[t.month];
 			y = t.year;
 			IO.clear();
-			IO.write(m + " " + y);
+			IO.write(m + " " + y, "sz-60 fg-blue bolder");
 			IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
 			IO.write("");
 			IO.write(Memory.read("name"), "sz-28 bolder");
@@ -189,34 +194,50 @@ var Game = {
 			IO.write(Memory.read("description"), "bolder ilb sz-14");
 			IO.write("REAL ESTATE AGENT", "sz-14");
 			IO.write("");
-			IO.write("PROPERTIES (1)");
-			IO.write("RENTERS (2)");
-			IO.write("BANK ACCOUNT (3)");
-			IO.write("MESSAGES (4)");
-			IO.write("SERVICES (5)");
+			IO.write("Press any key to go to work", "advice");
+
+			// Game.office.properties.generate();
+
+			IO.pause.set(Game.office.main);
+		}, main: function () {
+			var m = "January February March April May June July August September October November December";
+			var t = Memory.read("time");
+			m = m.split(" ")[t.month];
+			y = t.year;
+			IO.clear();
+			IO.write("Office", "sz-48 bolder");
+			IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
+			IO.write(m + " " + y);
 			IO.write("");
-			IO.write("Press buttons 1 to 5 to select", "advice");
+			IO.write("PROPERTIES (1)");
+			IO.write("BANK ACCOUNT (2)");
+			IO.write("SERVICES (3)");
+			IO.write("");
+			IO.write("NEXT MONTH (0)");
+			IO.write("");
+			IO.write("Press buttons 0 to 3 to select", "advice");
 			IO.options.set([
 				Game.office.properties.main,
-				Game.office.renters,
 				Game.office.account,
-				Game.office.messages,
-				Game.office.services,
-			]);
+				Game.office.services.main
+			],  Game.office.forward);
 		}, report: function () {
 		}, save: function () {
 		}, forward: function () {
 			var t = Memory.read("time");
 			var m = Memory.read("market");
+			var i = m.index;
 			t.passed += 1;
 			t.month = (t.month + 1)%12;
 			if (t.month == 0)
 				t.year += 1;
 
-			m.index = m.index + m.slope / 12 * t.passed;
+			m.index = m.index + m.slope / 12 * 1;
+			m.variation = m.index/i - 1;
 			Memory.write("time", t);
 			Memory.write("market", m);
-			Game.office.main();
+
+			Game.office.intro();
 		}, properties: {
 			generate: function () {
 				var p = [
@@ -252,12 +273,11 @@ var Game = {
 				IO.write("");
 				IO.write("BUY (1)");
 				IO.write("SELL (2)");
-				IO.write("BACK (3)");
+				IO.write("BACK (0)");
 				IO.options.set([
 					Game.office.properties.buy,
-					Game.office.properties.sell,
-					Game.office.main,
-				]);
+					Game.office.properties.sell
+				], Game.office.main);
 			}, buy: function (){
 				Game.office.properties.generate();
 				IO.clear();
@@ -272,13 +292,12 @@ var Game = {
 					IO.write("VIEW (" + (i + 1) + ")");
 					IO.write("");
 				}
-				IO.write("BACK (" + (i + 1) + ")");
+				IO.write("BACK (0)");
 				IO.options.set([
 					Game.office.properties.buyDetail,
 					Game.office.properties.buyDetail,
-					Game.office.properties.buyDetail,
-					Game.office.properties.main
-				]);
+					Game.office.properties.buyDetail
+				], Game.office.properties.main);
 			}, buyDetail: function (n) {
 				var p = Memory.read("marketplace")[n - 1];
 				var c = Memory.read("currency");
@@ -308,20 +327,23 @@ var Game = {
 					Game.office.properties.buyFail();
 			}, buySuccess: function () {
 				var n = Memory.read("marketplace_last");
-				var p = Memory.read("marketplace")[n];
+				var m = Memory.read("marketplace");
 				var c = Memory.read("currency");
 				var a = Memory.read("account");
-
+				var p = Memory.read("properties");
+				m = m.splice(n, 1)[0];
+				p.push(m);
 				a = a - p.price;
 				Memory.write("account", a);
+				Memory.write("properties", p);
 				IO.clear();
 				IO.write("Awesome!", "sz-48 bolder fg-green");
 				IO.write("");
 				IO.write("You just bought the following property:");
-				IO.write(p.name, "sz-28");
+				IO.write(m.name, "sz-28");
 				IO.write("");
 				IO.write("for a whopping amount of");
-				IO.write(p.price + " " + c, "sz-28");
+				IO.write(m.price + " " + c, "sz-28");
 				IO.write("");
 				IO.write("Press any key to continue", "advice");
 				IO.pause.set(Game.office.forward);
@@ -343,13 +365,6 @@ var Game = {
 				IO.write("Press any key to get back to the office", "advice");
 				IO.pause.set(Game.office.main);
 			}
-		}, renters: function () {
-			IO.clear();
-			IO.write("Renters", "sz-48 bolder");
-			IO.write("Nothing to see here.");
-			IO.write("");
-			IO.write("Press any key to get back to the office", "advice")
-			IO.pause.set(Game.office.main);
 		}, account: function () {
 			IO.clear();
 			IO.write("Bank Account", "sz-48 bolder");
@@ -358,20 +373,31 @@ var Game = {
 			IO.write("");
 			IO.write("Press any key to get back to the office", "advice")
 			IO.pause.set(Game.office.main);
-		}, messages: function () {
-			IO.clear();
-			IO.write("Messages", "sz-48 bolder");
-			IO.write("Nothing to see here.");
-			IO.write("");
-			IO.write("Press any key to get back to the office", "advice")
-			IO.pause.set(Game.office.main);
-		}, services: function () {
-			IO.clear();
-			IO.write("Services", "sz-48 bolder");
-			IO.write("Nothing to see here.");
-			IO.write("");
-			IO.write("Press any key to get back to the office", "advice")
-			IO.pause.set(Game.office.main);
+		}, services: {
+			main: function () {
+				IO.clear();
+				IO.write("Services", "sz-48 bolder");
+				IO.write("STOCK MARKET INDEXES (1)");
+				IO.write("");
+				IO.write("BACK (0)");
+				IO.options.set([
+					Game.office.services.stock
+				], Game.office.main);
+			}, stock: function () {
+				var index = (Memory.read("market").index).toFixed(2);
+				var delta = (Memory.read("market").variation * 100).toFixed(1);
+				IO.clear();
+				IO.write("Stock Market", "sz-48 bolder");
+				IO.write("Index");
+				IO.write(index, "sz-28");
+				IO.write("");
+				IO.write("Variation");
+				IO.write(delta + " %", "sz-28");
+				IO.write("");
+
+				IO.write("Press any key to go back", "advice");
+				IO.pause.set(Game.office.services.main);
+			}
 		}
 	}, what: function () {
 		IO.write("What?");
