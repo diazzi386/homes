@@ -1,5 +1,5 @@
 var IO = {
-	VERSION: "0.2.5",
+	VERSION: "0.3.0",
 	BUILD: "27 Mar. 2020",
 	listen: null,
 	theme: {
@@ -187,6 +187,23 @@ var IO = {
 				document.removeEventListener('keyup', IO.options.type);
 				// IO.get(IO.options.id).removeAttribute("id");
 				return IO.options.options[key - 1](key);
+			}
+		}
+	}, charmap: {
+		id: "input",
+		map: null,
+		set: function (f) {
+			// IO.input(IO.charmap.id);
+			IO.charmap.map = f;
+			document.addEventListener('keyup', IO.charmap.type);
+		}, type: function (e) {
+			var key = e.keyCode ? e.keyCode : e.which;
+			if (key >= 65 && key <= 90)
+				key = String.fromCharCode(key);
+			if (IO.charmap.map[key]) {
+				document.removeEventListener('keyup', IO.charmap.type);
+				// IO.get(IO.charmap.id).removeAttribute("id");
+				return IO.charmap.map[key]();
 			}
 		}
 	}, wait: function (f, t) {

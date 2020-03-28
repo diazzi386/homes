@@ -494,7 +494,7 @@ var Game = {
 					Game.office.properties.buyDetail,
 					Game.office.properties.buyDetail,
 					Game.office.properties.buyDetail
-				], Game.office.properties.main);
+				], Game.office.main);
 			}, buyDetail: function (n) {
 				var p = Memory.read("marketplace")[n - 1];
 				Memory.write("marketplace_last", n - 1);
