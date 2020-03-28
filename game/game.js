@@ -1,6 +1,7 @@
 window.onload = function () {
 	IO.init();
 
+	/*
 	Memory.load({
 		"name": "LUCA",
 		"description": "ANXIOUS",
@@ -17,8 +18,8 @@ window.onload = function () {
 			"year": 2020,
 			"passed": 0,
 		}, "market": {
-			volatility: 0,
-			frequency: 0,
+			volatility: 0.2,
+			frequency: 1,
 			slope: 0.5,
 			index: 1.0,
 			variation: 0.0
@@ -28,7 +29,8 @@ window.onload = function () {
 				expenses: 0,
 				bought: 0,
 				sold: 0,
-				balance: 0
+				balance: 0,
+				last: 0,
 			}, year: {
 				income: 0,
 				expenses: 0,
@@ -46,7 +48,8 @@ window.onload = function () {
 	});
 
 	Game.office.intro();
-	// Game.start.start();
+	*/
+	Game.start.start();
 };
 
 var Game = {
@@ -177,8 +180,8 @@ var Game = {
 			Memory.write("account", Memory.read("price")*0.75);
 			Memory.write("difficulty", d);
 			Memory.write("market", {
-				volatility: 0,
-				frequency: 0,
+				volatility: 0.2,
+				frequency: 1,
 				slope: 0.5,
 				index: 1.0,
 				variation: 0.0
@@ -194,7 +197,8 @@ var Game = {
 					expenses: 0,
 					bought: 0,
 					sold: 0,
-					balance: 0
+					balance: 0,
+					last: 0
 				}, year: {
 					income: 0,
 					expenses: 0,
@@ -281,12 +285,23 @@ var Game = {
 				Memory.read("accounting").year.expenses = 0;
 			}
 
-			m.index = m.index + m.slope / 12 * 1;
+			m.index = 1 + m.slope / 12 * t.passed + m.volatility * Math.sin(m.frequency * t.passed);
 			m.variation = m.index/i - 1;
+
+			for (var i in Memory.read("properties")) {
+				Memory.read("properties")[i].price *= 1 + m.variation;
+				Memory.read("properties")[i].price = 5000 * Math.round(Memory.read("properties")[i].price / 5000);
+			}
+
+			for (var i in Memory.read("marketplace")) {
+				Memory.read("marketplace")[i].price *= 1 + m.variation;
+				Memory.read("marketplace")[i].price = 5000 * Math.round(Memory.read("marketplace")[i].price / 5000);
+			}
+
 			Memory.write("time", t);
 			Memory.write("market", m);
-
 			Memory.read("accounting").month.balance = Memory.read("account");
+			Memory.read("accounting").month.last = Memory.read("accounting").month.income - Memory.read("accounting").month.expenses;
 			Memory.read("accounting").month.income = 0;
 			Memory.read("accounting").month.expenses = 0;
 
@@ -359,11 +374,7 @@ var Game = {
 				var p = Memory.read("marketplace")[n - 1];
 				Memory.write("marketplace_last", n - 1);
 				IO.clear();
-				IO.write("Property detail", "sz-48 bolder");
-				IO.write("");
-				IO.write("Name");
-				IO.write(p.name, "sz-28");
-				IO.write("");
+				IO.write(p.name, "sz-48 bolder");
 				IO.write("Selling for");
 				IO.write(Game.pricetag(p.price), "sz-28");
 				IO.write("");
@@ -424,13 +435,14 @@ var Game = {
 			}
 		}, bank: {
 			main: function () {
+				var l = Memory.read("accounting").month.last;
 				IO.clear();
 				IO.write("Bank Account", "sz-48 bolder");
 				IO.write("Balance");
 				IO.write(Game.pricetag(Memory.read("account")), "sz-28");
 				IO.write("");
-				IO.write("This month");
-				IO.write(Game.pricetag(Memory.read("account")), "sz-28");
+				IO.write("Last month");
+				IO.write(Game.pricetag(l), "sz-28" + (l < 0 ? " fg-red" : " "));
 				IO.write("");
 				IO.write("ASK FOR A LOAN (1)");
 				IO.write("");
