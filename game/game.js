@@ -8,7 +8,7 @@ var Game = {
 	Author: "Luca Diazzi",
 	Key: "diazzi-homes",
 	Date: "2020",
-	Version: "0.1.5",
+	Version: "0.1.10",
 	Verbose: false,
 	date: function () {
 		var m = "January February March April May June July August September October November December";
@@ -200,6 +200,7 @@ var Game = {
 			IO.write("Press any key to go to work", "advice");
 
 			// Game.office.properties.generate();
+			Game.office.properties.generate();
 
 			Memory.save();
 
@@ -219,13 +220,15 @@ var Game = {
 			IO.write(Game.pricetag(Memory.read("account")), "sz-28");
 			IO.write("");
 			IO.write("PROPERTIES (1)");
-			IO.write("BANK (2)");
+			IO.write("MARKETPLACE (2)");
+			IO.write("BANK (3)");
 			IO.write("");
 			IO.write("NEXT MONTH (0)");
 			IO.write("");
-			IO.write("Press buttons 0 to 2 to select", "advice");
+			IO.write("Press buttons 0 to 3 to select", "advice");
 			IO.options.set([
 				Game.office.properties.main,
+				Game.office.properties.buy,
 				Game.office.bank.main
 			],  t == 0 ? Game.office.first : Game.office.report);
 		}, report: function () {
@@ -299,25 +302,105 @@ var Game = {
 			generate: function () {
 				var p = [
 					{
-						name: "Apartment downtown",
-						price: 0.6,
-						rent: 0.012
+						name: "Backyard Treehouse",
+						price: 0.08,
+						rent: 0.025,
+						unlock: 0.5
 					}, {
-						name: "Modest house",
-						price: 0.9,
-						rent: 0.015
+						name: "Tiny Home",
+						price: 0.16,
+						rent: 0.025,
+						unlock: 1.25
 					}, {
-						name: "Luxury mansion",
-						price: 2.3,
-						rent: 0.025
+						name: "Seaside Lighthouse",
+						price: 0.25,
+						rent: 0.025,
+						unlock: 2.00
+					}, {
+						name: "Downtown Apartment",
+						price: 0.60,
+						rent: 0.015,
+						unlock: 0.00
+					}, {
+						name: "Modest House",
+						price: 1.10,
+						rent: 0.015,
+						unlock: 2.00,
+						unlock: 0.00
+					}, {
+						name: "Typical Trullo",
+						price: 1.40,
+						rent: 0.015,
+						unlock: 2.00
+					}, {
+						name: "Mountain Chalet",
+						price: 1.90,
+						rent: 0.015,
+						unlock: 1.00
+					}, {
+						name: "Offices Complex",
+						price: 2.75,
+						rent: 0.015,
+						unlock: 0.00
+					}, {
+						name: "City Centre Attic",
+						price: 4.50,
+						rent: 0.015,
+						unlock: 0.00
+					}, {
+						name: "Lakeside Hotel",
+						price: 15,
+						rent: 0.025,
+						unlock: 5.00
+					}, {
+						name: "Historic Palace",
+						price: 25,
+						rent: 0.025,
+						unlock: 10.00
+					}, {
+						name: "Luxury Mansion",
+						price: 65,
+						rent: 0.025,
+						unlock: 20.00
+					}, {
+						name: "Countryside Castle",
+						price: 250,
+						rent: 0.025,
+						unlock: 20.00
+					}, {
+						name: "Island Resort",
+						price: 1200,
+						rent: 0.025,
+						unlock: 50.00
+					}, {
+						name: "National Parliament",
+						price: 5000,
+						rent: 0.030,
+						unlock: 500.00
 					}
 				];
 
-				for (var i in p) {
+				var j = Memory.read("accounting").total.income;
+
+				for (var i = p.length - 1; i >= 0; i--) {
+					console.log(i);
 					// Da sistemare
-					p[i].price = 5000 * Math.round(p[i].price * Memory.read("market").index * Memory.read("price") / 5000);
-					p[i].rent = 100 * Math.round(p[i].rent * Memory.read("market").index * Memory.read("price") / 100);
+					if (p[i].unlock * Memory.read("price") > j) {
+						p.splice(i, 1);
+					} else {
+						p[i].price = 5000 * Math.round(p[i].price * Memory.read("market").index * Memory.read("price") / 5000);
+						p[i].rent = 100 * Math.round(p[i].rent * Memory.read("market").index * Memory.read("price") / 100);
+					}
 				}
+
+				while (p.length > 3) {
+					if (j == 0)
+						var i = Math.floor(1 + Math.random() * (p.length - 1));
+					else
+						var i = Math.floor(Math.random() * p.length);
+					p.splice(i, 1);
+				}
+
 				Memory.write("marketplace", p);
 			}, main: function () {
 				var choices = [];
@@ -331,6 +414,7 @@ var Game = {
 					var p = Memory.read("properties");
 					for (var i in p) {
 						IO.write(p[i].name, "sz-28");
+						IO.write(Game.pricetag(p[i].price));
 						IO.write("VIEW (" + (k + 1) +")");
 						choices.push(Game.office.properties.yoursDetail);
 						IO.write(" ");
@@ -338,17 +422,19 @@ var Game = {
 					}
 				}
 				
-				IO.write("BUY (" + (k + 1) + ")");
+				IO.write("MARKETPLACE (" + (k + 1) + ")");
 				choices.push(Game.office.properties.buy);
 				IO.write("BACK (0)");
 				IO.options.set(choices, Game.office.main);
 			}, yoursDetail: function (n) {
 				var p = Memory.read("properties")[n - 1];
+				var i = 100*(p.price/p.boughtFor - 1);
 				Memory.write("properties_last", n - 1);
 				IO.clear();
 				IO.write(p.name, "sz-48 bolder");
 				IO.write("Value");
 				IO.write(Game.pricetag(p.price), "sz-28");
+				IO.write((i >= 0 ? "+" : "") + i.toFixed(1) + "%", i < 0 ? "fg-red" : "fg-green");
 				IO.write("");
 				IO.write("Bought for");
 				IO.write(Game.pricetag(p.boughtFor), "sz-28");
@@ -360,7 +446,7 @@ var Game = {
 				IO.write("BACK (0)");
 				IO.options.set([
 					Game.office.properties.sellConfirm
-				], Game.office.main);
+				], Game.office.properties.main);
 			}, sellConfirm: function () {
 				var l = Memory.read("properties_last");
 				var m = Memory.read("properties")[l];
@@ -391,7 +477,7 @@ var Game = {
 				IO.write("Press any key to continue", "advice");
 				IO.pause.set(Game.office.report);
 			}, buy: function (){
-				Game.office.properties.generate();
+				// Game.office.properties.generate();
 				IO.clear();
 				IO.write("Marketplace", "sz-48 bolder");
 				IO.write("Properties on the market this month:");
@@ -425,9 +511,10 @@ var Game = {
 			}, buyCheck: function () {
 				var l = Memory.read("marketplace_last");
 				var m = Memory.read("marketplace")[l];
+				var n = Memory.read("properties").length;
 				var p = m.price;
 				var a = Memory.read("account");
-				if (p < a)
+				if (p < a && n < 3)
 					Game.office.properties.buySuccess();
 				else
 					Game.office.properties.buyFail();
