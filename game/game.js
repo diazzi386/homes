@@ -17,7 +17,7 @@ var Game = {
 		y = t.year;
 		return m + " " + y;
 	}, pricetag: function (a) {
-		return a + " " + Memory.read("currency");
+		return a.toLocaleString() + " " + Memory.read("currency");
 	}, countryCurrency: function (a) {
 
 	}, start: {
@@ -26,7 +26,7 @@ var Game = {
 			IO.write("Sherlock Homes, Inc.", "sz-48 bolder");
 			IO.write("Hi!");
 			if (Memory.saved()) {
-				IO.write("I see that you already played.");
+				IO.write("I see that we already met.");
 				IO.write("Do you want to resume the last game?");
 				IO.confirm.set(Game.start.resume, Game.start.newGame);
 			} else {
@@ -205,25 +205,25 @@ var Game = {
 
 			IO.pause.set(Game.office.main);
 		}, main: function () {
+			var index = (Memory.read("market").index).toFixed(2);
+			var delta = (Memory.read("market").variation > 0 ? "+" : "") + (Memory.read("market").variation * 100).toFixed(1);
+			var t = Memory.read("time").passed;
 			IO.clear();
 			IO.write("Office", "sz-48 bolder");
 			IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
 			IO.write(Game.date());
 			IO.write("");
+			IO.write("Stock market index: " + index + " (" + delta + "%)", delta < 0 ? "fg-red" : "fg-green");
+			IO.write("");
 			IO.write("Checking Account");
 			IO.write(Game.pricetag(Memory.read("account")), "sz-28");
-			IO.write("");
-			var index = (Memory.read("market").index).toFixed(2);
-			var delta = (Memory.read("market").variation * 100).toFixed(1);
-			IO.write("Stock market index: " + index + " (" + delta + "%)", delta < 0 ? "fg-red" : "fg-green");
 			IO.write("");
 			IO.write("PROPERTIES (1)");
 			IO.write("BANK (2)");
 			IO.write("");
 			IO.write("NEXT MONTH (0)");
 			IO.write("");
-			IO.write("Press buttons 0 to 3 to select", "advice");
-			var t = Memory.read("time").passed;
+			IO.write("Press buttons 0 to 2 to select", "advice");
 			IO.options.set([
 				Game.office.properties.main,
 				Game.office.bank.main
@@ -240,7 +240,7 @@ var Game = {
 				}
 			}
 			IO.clear();
-			IO.write("Report of the Month", "sz-48 bolder fg-indigo");
+			IO.write(Game.date(), "sz-48 bolder fg-indigo");
 			IO.write("");
 			IO.write("Balance");
 			IO.write(Game.pricetag(Memory.read("account")), "sz-28");
