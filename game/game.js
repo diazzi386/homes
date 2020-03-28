@@ -1,16 +1,16 @@
 window.onload = function () {
 	IO.init();
-	/*
+
 	Memory.load({
 		"name": "LUCA",
 		"description": "ANXIOUS",
 		"country": "ITALY",
 		"currency": "EUR",
 		"salary": 50000,
-		"price": 250000,
+		"price": 200000,
 		"properties": [],
 		"renters": [],
-		"account": 200000,
+		"account": 0.75*200000,
 		"difficulty": 2,
 		"time": {
 			"month": 2,
@@ -23,28 +23,52 @@ window.onload = function () {
 			index: 1.0,
 			variation: 0.0
 		}, "accounting": {
-			income: 0,
-			expenses: 0,
-			bought: 0,
-			sold: 0
+			month: {
+				income: 0,
+				expenses: 0,
+				bought: 0,
+				sold: 0,
+				balance: 0
+			}, year: {
+				income: 0,
+				expenses: 0,
+				bought: 0,
+				sold: 0,
+				balance: 0
+			}, total: {
+				income: 0,
+				expenses: 0,
+				bought: 0,
+				sold: 0,
+				balance: 0
+			}
 		}
 	});
 
 	Game.office.intro();
-	*/
-	Game.start.start();
+	// Game.start.start();
 };
 
 var Game = {
 	Title: "Sherlock Homes",
 	Author: "Luca Diazzi",
 	Date: "2020",
-	Version: "0.1.1",
+	Version: "0.1.2",
 	Verbose: false,
-	start: {
+	date: function () {
+		var m = "January February March April May June July August September October November December";
+		var t = Memory.read("time");
+		m = m.split(" ")[t.month];
+		y = t.year;
+		return m + " " + y;
+	}, pricetag: function (a) {
+		return a + " " + Memory.read("currency");
+	}, countryCurrency: function (a) {
+
+	}, start: {
 		start: function () {
 			IO.clear();
-			IO.write("SHERLOCK HOMES", "sz-48 bolder");
+			IO.write("Sherlock Homes, Inc.", "sz-48 bolder");
 			IO.write("Hi!");
 			IO.write("Do you want to become a real estate agent for today?");
 			IO.write("Type Y to say yes, N to say no", "advice");
@@ -114,14 +138,14 @@ var Game = {
 		}, expensive: function (price) {
 			Memory.write("price", price);
 			IO.write("WOW!", "sz-48 bolder");
-			IO.write(Memory.read("price") + " " + Memory.read("currency") + "?");
+			IO.write(Game.pricetag(Memory.read("price")) + "?");
 			if (Memory.read("price") >= 100000)
 				IO.write("That's expensive!");
 			else
 				IO.write("That's cheap!");
 			IO.write("");
 			Memory.write("salary", price * 0.2);
-			IO.write("So people make around " + Memory.read("salary") + " " + Memory.read("currency") + " a year?");
+			IO.write("So people make around " + Game.pricetag(Memory.read("salary")) + " a year?");
 			IO.confirm.set(Game.settings.askDifficulty, Game.settings.askSalary, Game.what);
 		}, askSalary: function () {
 			IO.write("Then how much do people make a year?");
@@ -150,7 +174,7 @@ var Game = {
 			IO.write("See you soon!");
 			Memory.write("properties", []);
 			Memory.write("renters", []);
-			Memory.write("account", 200000);
+			Memory.write("account", Memory.read("price")*0.75);
 			Memory.write("difficulty", d);
 			Memory.write("market", {
 				volatility: 0,
@@ -165,10 +189,25 @@ var Game = {
 				passed: 0,
 			});
 			Memory.write("accounting", {
-				income: 0,
-				expenses: 0,
-				bought: 0,
-				sold: 0
+				month: {
+					income: 0,
+					expenses: 0,
+					bought: 0,
+					sold: 0,
+					balance: 0
+				}, year: {
+					income: 0,
+					expenses: 0,
+					bought: 0,
+					sold: 0,
+					balance: 0
+				}, total: {
+					income: 0,
+					expenses: 0,
+					bought: 0,
+					sold: 0,
+					balance: 0
+				}
 			});
 			IO.write("");
 			IO.write("Please wait...", "advice");
@@ -181,12 +220,8 @@ var Game = {
 		}
 	}, office: {
 		intro: function () {
-			var m = "January February March April May June July August September October November December";
-			var t = Memory.read("time");
-			m = m.split(" ")[t.month];
-			y = t.year;
 			IO.clear();
-			IO.write(m + " " + y, "sz-60 fg-blue bolder");
+			IO.write(Game.date(), "sz-60 fg-blue bolder");
 			IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
 			IO.write("");
 			IO.write(Memory.read("name"), "sz-28 bolder");
@@ -200,14 +235,10 @@ var Game = {
 
 			IO.pause.set(Game.office.main);
 		}, main: function () {
-			var m = "January February March April May June July August September October November December";
-			var t = Memory.read("time");
-			m = m.split(" ")[t.month];
-			y = t.year;
 			IO.clear();
 			IO.write("Office", "sz-48 bolder");
 			IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
-			IO.write(m + " " + y);
+			IO.write(Game.date());
 			IO.write("");
 			IO.write("PROPERTIES (1)");
 			IO.write("BANK ACCOUNT (2)");
@@ -218,10 +249,24 @@ var Game = {
 			IO.write("Press buttons 0 to 3 to select", "advice");
 			IO.options.set([
 				Game.office.properties.main,
-				Game.office.account,
+				Game.office.bank.main,
 				Game.office.services.main
 			],  Game.office.forward);
 		}, report: function () {
+			IO.clear();
+			IO.write("Report of the Month", "sz-48 bolder fg-indigo");
+			IO.write("");
+			IO.write("Balance");
+			IO.write(Game.pricetag(Memory.read("account")), "sz-28");
+			IO.write("");
+			IO.write("Income");
+			IO.write(Game.pricetag(Memory.read("accounting").month.income), "sz-28");
+			IO.write("");
+			IO.write("Expenses");
+			IO.write(Game.pricetag(Memory.read("accounting").month.expenses), "sz-28 fg-red");
+			IO.write("");
+			IO.write("Press any key to continue", "advice");
+			IO.pause.set(Game.office.forward);
 		}, save: function () {
 		}, forward: function () {
 			var t = Memory.read("time");
@@ -229,13 +274,21 @@ var Game = {
 			var i = m.index;
 			t.passed += 1;
 			t.month = (t.month + 1)%12;
-			if (t.month == 0)
+			if (t.month == 0) {
 				t.year += 1;
+				Memory.read("accounting").year.balance = Memory.read("account");
+				Memory.read("accounting").year.income = 0;
+				Memory.read("accounting").year.expenses = 0;
+			}
 
 			m.index = m.index + m.slope / 12 * 1;
 			m.variation = m.index/i - 1;
 			Memory.write("time", t);
 			Memory.write("market", m);
+
+			Memory.read("accounting").month.balance = Memory.read("account");
+			Memory.read("accounting").month.income = 0;
+			Memory.read("accounting").month.expenses = 0;
 
 			Game.office.intro();
 		}, properties: {
@@ -265,14 +318,19 @@ var Game = {
 			}, main: function () {
 				IO.clear();
 				IO.write("Properties", "sz-48 bolder");
-				if (Memory.read("properties").length == 0)
-					IO.write("Nothing to see here.");
-				else {
-
+				if (Memory.read("properties").length == 0) {
+					IO.write("You have no properties yet.");
+					IO.write("");
+				} else {
+					var p = Memory.read("properties");
+					for (var i in p) {
+						IO.write(p[i].name, "sz-28");
+						IO.write(Game.pricetag(p[i].price) + ", " + Game.pricetag(p[i].rent));
+						IO.write(" ");
+					}
 				}
-				IO.write("");
+				
 				IO.write("BUY (1)");
-				IO.write("SELL (2)");
 				IO.write("BACK (0)");
 				IO.options.set([
 					Game.office.properties.buy,
@@ -285,10 +343,9 @@ var Game = {
 				IO.write("Properties on the market this month:");
 				IO.write("");
 				var p = Memory.read("marketplace");
-				var c = Memory.read("currency");
 				for (var i = 0; i < p.length; i++) {
 					IO.write(p[i].name, "sz-28");
-					IO.write(p[i].price + " " + c);
+					IO.write(Game.pricetag(p[i].price));
 					IO.write("VIEW (" + (i + 1) + ")");
 					IO.write("");
 				}
@@ -300,7 +357,6 @@ var Game = {
 				], Game.office.properties.main);
 			}, buyDetail: function (n) {
 				var p = Memory.read("marketplace")[n - 1];
-				var c = Memory.read("currency");
 				Memory.write("marketplace_last", n - 1);
 				IO.clear();
 				IO.write("Property detail", "sz-48 bolder");
@@ -309,10 +365,10 @@ var Game = {
 				IO.write(p.name, "sz-28");
 				IO.write("");
 				IO.write("Selling for");
-				IO.write(p.price + " " + c, "sz-28");
+				IO.write(Game.pricetag(p.price), "sz-28");
 				IO.write("");
 				IO.write("Renting for");
-				IO.write(p.rent + " " + c, "sz-28");
+				IO.write(Game.pricetag(p.rent), "sz-28");
 				IO.write("");
 				IO.write("Do you want to buy the property?");
 				IO.confirm.set(Game.office.properties.buyCheck, Game.office.properties.buy);
@@ -328,14 +384,16 @@ var Game = {
 			}, buySuccess: function () {
 				var n = Memory.read("marketplace_last");
 				var m = Memory.read("marketplace");
-				var c = Memory.read("currency");
 				var a = Memory.read("account");
 				var p = Memory.read("properties");
 				m = m.splice(n, 1)[0];
 				p.push(m);
-				a = a - p.price;
+				a = a - m.price;
 				Memory.write("account", a);
 				Memory.write("properties", p);
+				Memory.read("accounting").month.expenses += m.price;
+				Memory.read("accounting").year.expenses += m.price;
+				Memory.read("accounting").total.expenses += m.price;
 				IO.clear();
 				IO.write("Awesome!", "sz-48 bolder fg-green");
 				IO.write("");
@@ -343,14 +401,13 @@ var Game = {
 				IO.write(m.name, "sz-28");
 				IO.write("");
 				IO.write("for a whopping amount of");
-				IO.write(m.price + " " + c, "sz-28");
+				IO.write(Game.pricetag(m.price), "sz-28");
 				IO.write("");
 				IO.write("Press any key to continue", "advice");
-				IO.pause.set(Game.office.forward);
+				IO.pause.set(Game.office.report);
 			}, buyFail: function () {
 				var n = Memory.read("marketplace_last");
 				var p = Memory.read("marketplace")[n];
-				var c = Memory.read("currency");
 				IO.clear();
 				IO.write("Sorry but...", "sz-48 bolder fg-red");
 				IO.write("");
@@ -358,21 +415,32 @@ var Game = {
 				IO.write(p.name, "sz-28");
 				IO.write("");
 				IO.write("with a price tag of");
-				IO.write(p.price + " " + c, "sz-28");
+				IO.write(Game.pricetag(p.price), "sz-28");
 				IO.write("");
 				IO.write("Please check your Bank Account!");
 				IO.write("");
 				IO.write("Press any key to get back to the office", "advice");
 				IO.pause.set(Game.office.main);
 			}
-		}, account: function () {
-			IO.clear();
-			IO.write("Bank Account", "sz-48 bolder");
-			IO.write("Balance");
-			IO.write(Memory.read("account") + " " + Memory.read("currency"), "sz-28");
-			IO.write("");
-			IO.write("Press any key to get back to the office", "advice")
-			IO.pause.set(Game.office.main);
+		}, bank: {
+			main: function () {
+				IO.clear();
+				IO.write("Bank Account", "sz-48 bolder");
+				IO.write("Balance");
+				IO.write(Game.pricetag(Memory.read("account")), "sz-28");
+				IO.write("");
+				IO.write("This month");
+				IO.write(Game.pricetag(Memory.read("account")), "sz-28");
+				IO.write("");
+				IO.write("ASK FOR A LOAN (1)");
+				IO.write("");
+				IO.write("BACK (0)");
+				IO.options.set([
+					Game.office.services.stock
+				], Game.office.main);
+			}, loan: function () {
+
+			}
 		}, services: {
 			main: function () {
 				IO.clear();
@@ -392,9 +460,9 @@ var Game = {
 				IO.write(index, "sz-28");
 				IO.write("");
 				IO.write("Variation");
-				IO.write(delta + " %", "sz-28");
+				IO.write(delta + "%", "sz-28");
 				IO.write("");
-
+				// Prices are rising, time to sell
 				IO.write("Press any key to go back", "advice");
 				IO.pause.set(Game.office.services.main);
 			}
