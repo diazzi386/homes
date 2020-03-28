@@ -250,16 +250,20 @@ var Game = {
 			IO.write("");
 			IO.write("PROPERTIES (1)");
 			IO.write("BANK ACCOUNT (2)");
-			IO.write("SERVICES (3)");
+			IO.write("");
+			
+			var index = (Memory.read("market").index).toFixed(2);
+			var delta = (Memory.read("market").variation * 100).toFixed(1);
+			IO.write("Stock market index: " + index + " (" + delta + "%)", delta < 0 ? "fg-red" : "fg-green");
 			IO.write("");
 			IO.write("NEXT MONTH (0)");
 			IO.write("");
 			IO.write("Press buttons 0 to 3 to select", "advice");
+			var t = Memory.read("time").passed;
 			IO.options.set([
 				Game.office.properties.main,
-				Game.office.bank.main,
-				Game.office.services.main
-			],  Game.office.report);
+				Game.office.bank.main
+			],  t == 0 ? Game.office.first : Game.office.report);
 		}, report: function () {
 			for (var i in Memory.read("properties")) {
 				if (!Memory.read("properties")[i].done)
@@ -285,6 +289,13 @@ var Game = {
 			IO.write("");
 			IO.write("Press any key to continue", "advice");
 			IO.pause.set(Game.office.forward);
+		}, first: function () {IO.clear();
+			IO.write("Hey!", "sz-48 bolder");
+			IO.write("If you want to be a real estate agent");
+			IO.write("you got to buy at least a property!");
+			IO.write("");
+			IO.write("Press any key to go back", "advice");
+			IO.pause.set(Game.office.main);
 		}, save: function () {
 		}, forward: function () {
 			var t = Memory.read("time");
@@ -510,10 +521,9 @@ var Game = {
 				IO.write(Game.pricetag(l), "sz-28" + (l < 0 ? " fg-red" : " "));
 				IO.write("");
 				IO.write("ASK FOR A LOAN (1)");
-				IO.write("");
 				IO.write("BACK (0)");
 				IO.options.set([
-					Game.office.services.stock
+					Game.office.main
 				], Game.office.main);
 			}, loan: function () {
 
