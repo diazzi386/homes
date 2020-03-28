@@ -48,8 +48,9 @@ window.onload = function () {
 	});
 
 	Game.office.intro();
-	*/
 
+	*/
+	
 	Game.start.start();
 };
 
@@ -59,7 +60,7 @@ var Game = {
 	Title: "Sherlock Homes",
 	Author: "Luca Diazzi",
 	Date: "2020",
-	Version: "0.1.3",
+	Version: "0.1.5",
 	Verbose: false,
 	date: function () {
 		var m = "January February March April May June July August September October November December";
@@ -258,8 +259,18 @@ var Game = {
 				Game.office.properties.main,
 				Game.office.bank.main,
 				Game.office.services.main
-			],  Game.office.forward);
+			],  Game.office.report);
 		}, report: function () {
+			for (var i in Memory.read("properties")) {
+				if (!Memory.read("properties")[i].done)
+					Memory.read("properties")[i].done = true;
+				else {
+					Memory.write("account", Memory.read("account") + Memory.read("properties")[i].rent);
+					Memory.read("accounting").month.income += Memory.read("properties")[i].rent;
+					Memory.read("accounting").year.income += Memory.read("properties")[i].rent;
+					Memory.read("accounting").total.income += Memory.read("properties")[i].rent;
+				}
+			}
 			IO.clear();
 			IO.write("Report of the Month", "sz-48 bolder fg-indigo");
 			IO.write("");
