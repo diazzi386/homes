@@ -1,7 +1,6 @@
 window.onload = function () {
 	IO.init();
 
-	/*
 	Memory.load({
 		"name": "LUCA",
 		"description": "ANXIOUS",
@@ -48,15 +47,14 @@ window.onload = function () {
 	});
 
 	Game.office.intro();
-	*/
-	Game.start.start();
+	// Game.start.start();
 };
 
 var Game = {
 	Title: "Sherlock Homes",
 	Author: "Luca Diazzi",
 	Date: "2020",
-	Version: "0.1.2",
+	Version: "0.1.3",
 	Verbose: false,
 	date: function () {
 		var m = "January February March April May June July August September October November December";
@@ -472,7 +470,7 @@ var Game = {
 				IO.write(index, "sz-28");
 				IO.write("");
 				IO.write("Variation");
-				IO.write(delta + "%", "sz-28");
+				IO.write(delta + "%", "sz-28" + (delta < 0 ? " fg-red" : " "));
 				IO.write("");
 				// Prices are rising, time to sell
 				IO.write("Press any key to go back", "advice");
