@@ -1,5 +1,5 @@
 var IO = {
-	VERSION: "0.1.1",
+	VERSION: "0.2.5",
 	BUILD: "27 Mar. 2020",
 	listen: null,
 	theme: {
@@ -214,5 +214,17 @@ var Memory = {
 	}, load: function (e) {
 		for (var i in e)
 			Memory.values[i] = e[i];
+	}, save: function () {
+		localStorage.setItem(Game.Key, JSON.stringify(Memory.values));
+	}, saved: function () {
+		if (localStorage.getItem(Game.Key))
+			return true;
+		else
+			return false;
+	}, resume: function () {
+		var m = JSON.parse(localStorage.getItem(Game.Key));
+		Memory.load(m);
+	}, reset: function () {
+		localStorage.removeItem(Game.Key);
 	}
 };

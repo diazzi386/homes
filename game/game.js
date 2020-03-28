@@ -1,64 +1,12 @@
 window.onload = function () {
 	IO.init();
-
-	/*
-	Memory.load({
-		"name": "LUCA",
-		"description": "ANXIOUS",
-		"country": "ITALY",
-		"currency": "EUR",
-		"salary": 50000,
-		"price": 200000,
-		"properties": [],
-		"renters": [],
-		"account": 0.75*200000,
-		"difficulty": 2,
-		"time": {
-			"month": 2,
-			"year": 2020,
-			"passed": 0,
-		}, "market": {
-			volatility: 0.2,
-			frequency: 1,
-			slope: 0.5,
-			index: 1.0,
-			variation: 0.0
-		}, "accounting": {
-			month: {
-				income: 0,
-				expenses: 0,
-				bought: 0,
-				sold: 0,
-				balance: 0,
-				last: 0,
-			}, year: {
-				income: 0,
-				expenses: 0,
-				bought: 0,
-				sold: 0,
-				balance: 0
-			}, total: {
-				income: 0,
-				expenses: 0,
-				bought: 0,
-				sold: 0,
-				balance: 0
-			}
-		}
-	});
-
-	Game.office.intro();
-
-	*/
-	
 	Game.start.start();
 };
 
-
-
 var Game = {
-	Title: "Sherlock Homes",
+	Title: "Sherlock Homes, Inc.",
 	Author: "Luca Diazzi",
+	Key: "diazzi-homes",
 	Date: "2020",
 	Version: "0.1.5",
 	Verbose: false,
@@ -77,9 +25,15 @@ var Game = {
 			IO.clear();
 			IO.write("Sherlock Homes, Inc.", "sz-48 bolder");
 			IO.write("Hi!");
-			IO.write("Do you want to become a real estate agent for today?");
-			IO.write("Type Y to say yes, N to say no", "advice");
-			IO.confirm.set(Game.start.wantToPlay, Game.start.notWantToPlay);
+			if (Memory.saved()) {
+				IO.write("I see that you already played.");
+				IO.write("Do you want to resume the last game?");
+				IO.confirm.set(Game.start.resume, Game.start.newGame);
+			} else {
+				IO.write("Do you want to become a real estate agent for today?");
+				IO.write("Type Y to say yes, N to say no", "advice");
+				IO.confirm.set(Game.start.wantToPlay, Game.start.notWantToPlay);
+			}
 		}, wantToPlay: function () {
 			IO.write("");
 			IO.write("Great!");
@@ -94,6 +48,12 @@ var Game = {
 			IO.write("");
 			Game.credits();
 			IO.pause.set(Game.start.start);
+		}, newGame: function () {
+			Memory.reset();
+			Game.start.start();
+		}, resume: function () {
+			Memory.resume();
+			Game.office.intro();
 		}, country: function (name) {
 			Memory.write("name", name);
 			IO.write("");
@@ -241,6 +201,8 @@ var Game = {
 
 			// Game.office.properties.generate();
 
+			Memory.save();
+
 			IO.pause.set(Game.office.main);
 		}, main: function () {
 			IO.clear();
@@ -248,13 +210,15 @@ var Game = {
 			IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
 			IO.write(Game.date());
 			IO.write("");
-			IO.write("PROPERTIES (1)");
-			IO.write("BANK ACCOUNT (2)");
+			IO.write("Checking Account");
+			IO.write(Game.pricetag(Memory.read("account")), "sz-28");
 			IO.write("");
-			
 			var index = (Memory.read("market").index).toFixed(2);
 			var delta = (Memory.read("market").variation * 100).toFixed(1);
 			IO.write("Stock market index: " + index + " (" + delta + "%)", delta < 0 ? "fg-red" : "fg-green");
+			IO.write("");
+			IO.write("PROPERTIES (1)");
+			IO.write("BANK (2)");
 			IO.write("");
 			IO.write("NEXT MONTH (0)");
 			IO.write("");
