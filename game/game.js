@@ -53,7 +53,16 @@ var Game = {
 			Game.start.start();
 		}, resume: function () {
 			Memory.resume();
-			Game.office.intro();
+
+			IO.clear();
+			IO.write("SHERLOCK HOMES, Inc.", "sz-48 bolder");
+			IO.write(Memory.read("name"), "sz-28 bolder");
+			IO.write("THE <b class='bolder'>" + Memory.read("description") + "</b>");
+			IO.write("REAL ESTATE AGENT");
+			
+			IO.write("");
+			IO.write("Loading...", "advice");
+			IO.wait(Game.office.intro, 2000);
 		}, country: function (name) {
 			Memory.write("name", name);
 			IO.write("");
@@ -189,8 +198,15 @@ var Game = {
 			IO.write("Please wait...", "advice");
 			IO.wait(Game.settings.ready, 3000);
 		}, ready: function () {
+			IO.clear();
+			IO.write("Hired!", "sz-48 bolder fg-green");
+			IO.write("The interview went well.");
 			IO.write("");
-			IO.write("Done!");
+			IO.write("You will start to work for");
+			IO.write("SHERLOCK HOMES, Inc.", "sz-28 bolder");
+			IO.write("next week.");
+			IO.write("We are now preparing your office.");
+			IO.write("See you soon!");
 			IO.write("");
 			IO.write("Press any key to continue", "advice");
 			IO.pause.set(Game.office.intro);
@@ -215,12 +231,13 @@ var Game = {
 				"Buying or selling a property marks the end of the month.",
 				"You can resume the game anytime if you need to go.",
 				"Be always prepared to pay for the unexpected.",
+				"Have you tried clicking on the title?",
 			];
 			IO.clear();
 			// IO.write("Office", "sz-48 bolder");
 			// IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
 			IO.write(Game.date());
-			IO.write("SHERLOCK HOMES, Inc.", "sz-36 bolder");
+			IO.write("<a href='javascript:Game.credits();' class='nd'>SHERLOCK HOMES, Inc.</a>", "sz-36 bolder");
 			IO.write("");
 			IO.write("Stock market index: " + index + " (" + delta + "%)", delta < 0 ? "fg-red" : "fg-green");
 			IO.write("");
@@ -233,11 +250,11 @@ var Game = {
 			IO.write("");
 			IO.write("NEXT MONTH (0)");
 			IO.write("");
-			IO.write(tips[Math.floor(Math.random()*tips.length)], "sz-16 fg-gray-60");
-			/*
-			IO.write("");
-			IO.write("Press buttons 0 to 3 to select", "advice");
-			*/
+			if (t == 24) {
+				IO.write("It seems like you are enjoying the game.", "sz-16 fg-orange");
+				IO.write("Please consider buying me <a href='https://paypal.me/LucaDiazzi'>a cup of coffee.</a> Thanks!", "sz-16 fg-orange");
+			} else
+				IO.write(tips[Math.floor(Math.random()*tips.length)], "sz-16 fg-gray-60");
 			IO.options.set([
 				Game.office.properties.main,
 				Game.office.properties.buy,
@@ -246,7 +263,7 @@ var Game = {
 		}, first: function () {IO.clear();
 			IO.write("Hey!", "sz-48 bolder");
 			IO.write("If you want to be a real estate agent");
-			IO.write("you have got to buy at least a property!");
+			IO.write("you have to buy at least a property!");
 			IO.write("");
 			IO.write("Press any key to go back", "advice");
 			IO.pause.set(Game.office.main);
@@ -582,7 +599,7 @@ var Game = {
 			main: function () {
 				var l = Memory.read("accounting").month.last;
 				IO.clear();
-				IO.write("Bank Account", "sz-48 bolder");
+				IO.write("Bank", "sz-48 bolder");
 				IO.write("Balance");
 				IO.write(Game.pricetag(Memory.read("account")), "sz-28");
 				IO.write("");
@@ -593,11 +610,33 @@ var Game = {
 				IO.write("LOAN (2)");
 				IO.write("BACK (0)");
 				IO.options.set([
-					Game.office.main,
-					Game.office.main,
+					Game.office.bank.invest,
+					Game.office.bank.loan,
 				], Game.office.main);
+			}, invest: function () {
+				IO.clear();
+				IO.write("Bank", "sz-48 bolder");
+				IO.write("Investments");
+				IO.write(Game.pricetag(0), "sz-28");
+				IO.write("0.0%");
+				IO.write("");
+				IO.write("Sorry!", "sz-24 fg-red");
+				IO.write("This feature is work in progress", "fg-red");
+				IO.write("");
+				IO.write("Press any key to go back", "advice");
+				IO.pause.set(Game.office.bank.main);
 			}, loan: function () {
-
+				IO.clear();
+				IO.write("Bank", "sz-48 bolder");
+				IO.write("Loan request");
+				IO.write(Game.pricetag(200000), "sz-28");
+				IO.write("0.0%");
+				IO.write("");
+				IO.write("Sorry!", "sz-24 fg-red");
+				IO.write("This feature is work in progress", "fg-red");
+				IO.write("");
+				IO.write("Press any key to go back", "advice");
+				IO.pause.set(Game.office.bank.main);
 			}
 		}
 	}, what: function () {
@@ -610,9 +649,19 @@ var Game = {
 		Game.credits();
 		IO.pause.set(Game.start.start);
 	}, credits: function () {
-		IO.write("SHERLOCK HOMES", "bolder");
-		IO.write("A game by LUCA DIAZZI", "sz-14");
-		IO.write("&copy; 2020", "sz-14");
+		IO.options.reset();
+		IO.clear()
+		IO.write("SHERLOCK HOMES, Inc.", "sz-48 bolder");
+		IO.write("A game by LUCA DIAZZI");
+		IO.write("&copy; 2020");
+		IO.write("");
+		IO.write("Version " + Game.Version);
+		IO.write("");
+		IO.write("It seems like you are enjoying the game.", "sz-16 fg-orange");
+		IO.write("Please consider buying me <a href='https://paypal.me/LucaDiazzi'>a cup of coffee.</a> Thanks!", "sz-16 fg-orange");
+		IO.write("");
+		IO.write("Press any key to go back", "advice");
+		IO.pause.set(Game.office.main);
 	}, license: function () {
 		IO.write(
 			"\nThe MIT License (MIT)\n" +

@@ -1,5 +1,5 @@
 var IO = {
-	VERSION: "0.3.0",
+	VERSION: "0.3.1",
 	BUILD: "27 Mar. 2020",
 	listen: null,
 	theme: {
@@ -188,6 +188,8 @@ var IO = {
 				// IO.get(IO.options.id).removeAttribute("id");
 				return IO.options.options[key - 1](key);
 			}
+		}, reset: function () {
+			document.removeEventListener('keyup', IO.options.type);
 		}
 	}, charmap: {
 		id: "input",
