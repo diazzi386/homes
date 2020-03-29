@@ -5,6 +5,7 @@
 .node { text-decoration: underline !important; }
 .kbd { border: 1px solid white; padding: 1px; margin-right: 10px !important; }
 .it { font-style: italic; }
+.light { font-weight: 400; }
 .bold { font-weight: 700; }
 .bolder { font-weight: 900; }
 .ilb { display: inline-block !important; }

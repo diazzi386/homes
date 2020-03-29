@@ -8,7 +8,7 @@ var Game = {
 	Author: "Luca Diazzi",
 	Key: "diazzi-homes",
 	Date: "2020",
-	Version: "0.2.1",
+	Version: "0.2.4",
 	Verbose: false,
 	date: function () {
 		var m = "January February March April May June July August September October November December";
@@ -23,13 +23,13 @@ var Game = {
 	}, start: {
 		start: function () {
 			IO.clear();
-			IO.write("Sherlock Homes, Inc.", "sz-48 bolder");
-			IO.write("Hi!");
+			IO.write("SHERLOCK HOMES, Inc.", "sz-48 bolder");
 			if (Memory.saved()) {
-				IO.write("I see that we already met.");
+				IO.write("Welcome back!");
 				IO.write("Do you want to resume the last game?");
 				IO.confirm.set(Game.start.resume, Game.start.newGame);
 			} else {
+				IO.write("Hi!");
 				IO.write("Do you want to become a real estate agent for today?");
 				IO.write("Type Y to say yes, N to say no", "advice");
 				IO.confirm.set(Game.start.wantToPlay, Game.start.notWantToPlay);
@@ -58,14 +58,39 @@ var Game = {
 			Memory.write("name", name);
 			IO.write("");
 			IO.write("Nice to meet you, " + Memory.read("name") + ".");
-			IO.write("Please tell me more about yourself. Where are you from?");
-			IO.prompt.set(Game.start.currency);
-		}, currency: function (country) {
+			IO.write("Please tell me more about yourself.");
+			IO.write("Where are you from?");
+			IO.prompt.set(Game.start.ready);
+		}, ready: function (country) {
 			Memory.write("country", country);
+			// Memory.write("currency", currency);
+			IO.clear();
+			IO.write("Fantastic!", "sz-48 bolder");
+			IO.write("We sent your details to many agencies and");
+			IO.write("you got an interview for an important one,");
 			IO.write("");
-			IO.write(Memory.read("country") + ", what a wonderful country!");
+			IO.write("SHERLOCK HOMES, Inc.", "sz-28 bolder");
+			IO.write("");
+			IO.write("Are you ready to start?");
+			IO.write("");
+			IO.write("Press any key to continue", "advice");
+			IO.pause.set(Game.settings.describe);
+		}
+	}, settings: {
+		describe: function () {
+			IO.clear();
+			IO.write("Interview", "sz-48 bolder");
+			IO.write("First of all, how would you describe yourself in one word?");
+			IO.prompt.set(Game.settings.currency);
+		}, currency: function (note) {
+			Memory.write("description", note);
+			IO.write("");
+			IO.write("Great.");
+			IO.write("Now please remind me, what currency is used in " + Memory.read("country") + "?");
+			IO.prompt.set(Game.settings.price);
+			/*
 			var Europe = "AUSTRIA BELGIUM CYPRUS NETHERLANDS ESTONIA FINLAND FRANCE GERMANY GREECE IRELAND"
-				+ " ITALY LATVIA LITHUANIA LUXEMBOURG MALTA MONACO PORTUGAL SAN MARINO SLOVAKIA SLOVENIA SPAIN VATICAN CITY";
+			+ " ITALY LATVIA LITHUANIA LUXEMBOURG MALTA MONACO PORTUGAL SAN MARINO SLOVAKIA SLOVENIA SPAIN VATICAN CITY";
 			var States = "USA UNITED STATES OF AMERICA";
 			if (States.includes(Memory.read("country")))
 				Memory.write("currency", "USD");
@@ -73,54 +98,19 @@ var Game = {
 				Memory.write("currency", "EUR");
 			else
 				return Game.start.askCurrency();
-			IO.write("So your currency is " + Memory.read("currency") + "?");
-			IO.confirm.set(Game.start.ready, Game.start.askCurrency, Game.what);
-		}, askCurrency: function () {
-			IO.write("");
-			IO.write("Please remind me, what currency is used in " + Memory.read("country") + "?");
-			IO.prompt.set(Game.start.ready);
-		}, ready: function (currency) {
+			*/
+		}, price: function (currency) {
 			Memory.write("currency", currency);
-			IO.clear();
-			IO.write("Fantastic!", "sz-48 bolder");
-			IO.write("You are almost ready to become a real estate agent.");
-			IO.write("Just one more thing before we move on.");
-			IO.write("How would you describe yourself in one word?");
-			IO.prompt.set(Game.start.noted);
-		}, noted: function (note) {
 			IO.write("");
-			Memory.write("description", note);
-			IO.write("I will remember that.");
-			IO.write("Let's begin!");
-			IO.write("Press any key to start", "advice");
-			IO.pause.set(Game.settings.price);
-		}
-	}, settings: {
-		price: function () {
+			IO.write("Mm-mh.");
+			IO.write("And how much does a house cost in " +  Memory.read("country") + "?");
+			IO.number.set(Game.settings.difficulty);
+		}, difficulty: function (price) {
 			IO.clear();
-			IO.write("House Prices", "sz-48 bolder");
-			IO.write("First of all, let me ask.");
-			IO.write("How much does a house cost in " +  Memory.read("country") + "?");
-			IO.number.set(Game.settings.expensive);
-		}, expensive: function (price) {
 			Memory.write("price", price);
-			IO.write("WOW!", "sz-48 bolder");
-			IO.write(Game.pricetag(Memory.read("price")) + "?");
-			if (Memory.read("price") >= 100000)
-				IO.write("That's expensive!");
-			else
-				IO.write("That's cheap!");
-			IO.write("");
-			Memory.write("salary", price * 0.2);
-			IO.write("So people make around " + Game.pricetag(Memory.read("salary")) + " a year?");
-			IO.confirm.set(Game.settings.askDifficulty, Game.settings.askSalary, Game.what);
-		}, askSalary: function () {
-			IO.write("Then how much do people make a year?");
-			IO.number.set(Game.settings.askDifficulty);
-		}, askDifficulty: function (salary) {
-			Memory.write("salary", salary);
-			IO.write("");
+			IO.write("Interview", "sz-48 bolder");
 			IO.write("What would you say about risking and investing?");
+			IO.write("");
 			IO.write("IT SCARES ME (1)");
 			IO.write("I'M OKAY WITH IT (2)");
 			IO.write("I LOVE IT (3)");
@@ -134,8 +124,10 @@ var Game = {
 		}, preparing: function (d) {
 			IO.clear();
 			IO.write("Hired!", "sz-48 bolder fg-green");
+			IO.write("The interview went well.");
+			IO.write("");
 			IO.write("You will start to work for");
-			IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
+			IO.write("SHERLOCK HOMES, Inc.", "sz-28 bolder");
 			IO.write("next week.");
 			IO.write("We are now preparing your office.");
 			IO.write("See you soon!");
@@ -144,10 +136,11 @@ var Game = {
 			Memory.write("account", Memory.read("price")*0.75);
 			Memory.write("difficulty", d);
 			Memory.write("market", {
-				volatility: 0.2,
-				frequency: 1,
-				slope: 0.5,
 				index: 1.0,
+				slope: 0.5,
+				volatility: 0.2,
+				frequency: 0.5,
+				oscillation: 1.0,
 				variation: 0.0
 			});
 			Memory.write("time", {
@@ -177,12 +170,28 @@ var Game = {
 					balance: 0
 				}
 			});
+
+			if (Memory.read("difficulty") == 3) {
+				Memory.read("market").slope = 0.1;
+				Memory.read("market").volatility = 0.2;
+				Memory.read("market").oscillation = 1.0;
+			} else if (Memory.read("difficulty") == 2) {
+				Memory.read("market").slope = 0.2;
+				Memory.read("market").volatility = 0.2;
+				Memory.read("market").oscillation = 0.8;
+			} else {
+				Memory.read("market").slope = 0.3;
+				Memory.read("market").volatility = 0.1;
+				Memory.read("market").oscillation = 0.6;
+			}
+
 			IO.write("");
 			IO.write("Please wait...", "advice");
 			IO.wait(Game.settings.ready, 3000);
 		}, ready: function () {
 			IO.write("");
 			IO.write("Done!");
+			IO.write("");
 			IO.write("Press any key to continue", "advice");
 			IO.pause.set(Game.office.intro);
 		}
@@ -205,11 +214,13 @@ var Game = {
 				"Renting goes up only for properties not already rented.",
 				"Buying or selling a property marks the end of the month.",
 				"You can resume the game anytime if you need to go.",
+				"Be always prepared to pay for the unexpected.",
 			];
 			IO.clear();
-			IO.write("Office", "sz-48 bolder");
-			IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
+			// IO.write("Office", "sz-48 bolder");
+			// IO.write("Sherlock Homes, Inc.", "sz-28 bolder");
 			IO.write(Game.date());
+			IO.write("SHERLOCK HOMES, Inc.", "sz-36 bolder");
 			IO.write("");
 			IO.write("Stock market index: " + index + " (" + delta + "%)", delta < 0 ? "fg-red" : "fg-green");
 			IO.write("");
@@ -235,7 +246,7 @@ var Game = {
 		}, first: function () {IO.clear();
 			IO.write("Hey!", "sz-48 bolder");
 			IO.write("If you want to be a real estate agent");
-			IO.write("you got to buy at least a property!");
+			IO.write("you have got to buy at least a property!");
 			IO.write("");
 			IO.write("Press any key to go back", "advice");
 			IO.pause.set(Game.office.main);
@@ -264,7 +275,11 @@ var Game = {
 				Memory.read("accounting").year.expenses = 0;
 			}
 
-			m.index = 1 + m.slope / 12 * t.passed + m.volatility * Math.sin(m.frequency * t.passed);
+			m.index = (1 - m.oscillation) + Math.random() * m.oscillation;
+			m.index *= m.volatility * Math.sin(m.frequency * t.passed);
+			m.index += 1;
+			m.index *= 1 + m.slope * t.passed / 12;
+			
 			m.variation = m.index/i - 1;
 
 			for (var i in Memory.read("properties")) {
@@ -394,14 +409,12 @@ var Game = {
 			}, main: function () {
 				var choices = [];
 				var k = 0;
+				var t = Memory.read("time").passed;
 				IO.clear();
 				IO.write("Properties", "sz-48 bolder");
 				if (Memory.read("properties").length == 0) {
-					if (Memory.read("time").passed == 0)
-						IO.write("You have no properties yet.");
-					else
-						IO.write("You have no properties.");
-					IO.write("Go visit the marketplace to find one!");
+					IO.write("You have no properties" + (t == 0 ? " yet" : "") + ".");
+					IO.write("Visit the marketplace to find one!");
 					IO.write("");
 				} else {
 					var p = Memory.read("properties");
